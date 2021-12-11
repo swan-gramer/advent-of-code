@@ -7,9 +7,9 @@ def step_forward(input):
     flashes = 0
     for key in input:
         input[key] += 1
-        if input[key] >= 9:
+        if input[key] > 9:
             dqueue.put(key)
-    while dqueue:
+    while not dqueue.empty():
         key = dqueue.get()
         if key in processed:
             continue
@@ -22,7 +22,7 @@ def step_forward(input):
         for adjacent in [(row+i, column+j) for i, j in adjacent_offsets]:
             if adjacent in input:
                 input[adjacent] += 1
-                if input[adjacent] >= 9:
+                if input[adjacent] > 9:
                     dqueue.put(adjacent)
     
     return flashes
@@ -39,7 +39,7 @@ with open('input_test') as f:
         row += 1
 
 total_flashes = 0
-for i in range(100):
+for i in range(10):
     flashes = step_forward(input) 
     total_flashes += flashes
 
