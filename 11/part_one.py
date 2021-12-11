@@ -20,16 +20,16 @@ def step_forward(input):
         input[key] = 0
         row, column = key
         for adjacent in [(row+i, column+j) for i, j in adjacent_offsets]:
-            if adjacent in input:
+            if adjacent in input and adjacent not in processed:
                 input[adjacent] += 1
                 if input[adjacent] > 9:
                     dqueue.put(adjacent)
-    
+
     return flashes
 
 
 input = dict()
-with open('input_test') as f:
+with open('input') as f:
     row = 0
     for line in f:
         column = 0
@@ -38,9 +38,10 @@ with open('input_test') as f:
             column += 1
         row += 1
 
+
 total_flashes = 0
-for i in range(10):
-    flashes = step_forward(input) 
+for i in range(100):
+    flashes = step_forward(input)
     total_flashes += flashes
 
 print("Answer is {}".format(total_flashes))
