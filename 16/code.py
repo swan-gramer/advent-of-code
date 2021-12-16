@@ -93,7 +93,7 @@ class LiteralPacket(Packet):
             if flag == '0':
                 payload_size = i + group_size
                 break
-        self.value = int(value)
+        self.value = int(value, 2)
         self.payload_size = payload_size
 
     def get_value(self):
@@ -144,26 +144,27 @@ class OperationPacket(Packet):
 
     def get_value(self):
         op = eval('0b' + self.get_type())
+        values = map(lambda x: x.get_value(), self.sub_packets)
         if op == 0: #sum
-            return reduce(lambda x, y: x + y.get_value(), self.sub_packets, 0)
+            return sum(values)
         elif op == 1: #product
-            return reduce(lambda x, y: x * y.get_value(), self.sub_packets, 1)
+            return prod(values)
         elif op == 2: #minimum
-            return reduce(lambda x, y: min(x, y.get_value()), self.sub_packets, self.sub_packets[0].get_value())
+            return min(values)
         elif op == 3: #maximum
-            return reduce(lambda x, y: max(x, y.get_value()), self.sub_packets, 0)
+            return max(values)
         elif op == 5: #greater than
             assert len(self.sub_packets) == 2
-            v1, v2 = list(map(lambda x: x.get_value(), self.sub_packets))
-            return 1 if v1 > v2 else 0
+            v1, v2 = list(values)
+            return (0, 1)[v1 > v2]
         elif op == 6: #less than
             assert len(self.sub_packets) == 2
-            v1, v2 = list(map(lambda x: x.get_value(), self.sub_packets))
-            return 0 if v1 > v2 else 1
+            v1, v2 = list(values)
+            return (0, 1)[v1 < v2]
         elif op == 7: #equal to
             assert len(self.sub_packets) == 2
-            v1, v2 = list(map(lambda x: x.get_value(), self.sub_packets))
-            return 1 if v1 == v2 else 0
+            v1, v2 = list(values)
+            return (0, 1)[v1 == v2]
         else:
             raise Exception("Unknow operator {}".format(op))
 
@@ -202,11 +203,11 @@ def cal_total_version(packet):
     return total_version
 
 
-with open('input_test') as f:
+with open('input') as f:
     for line in f:
         root_packet = parse(line)[0]
         version = cal_total_version(root_packet)
-        print("Answer one is {}".format(version))
+        # print("Answer one is {}".format(version))
         value = root_packet.get_value()
         print("Answer two is {}".format(value))
 
